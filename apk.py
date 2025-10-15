@@ -15,7 +15,7 @@ def load_config():
             config = json.load(config_file)
 
             # Detectar entorno actual (variable FLASK_ENV o valor por defecto)
-            environment = os.getenv('Flask', config.get('Environment', 'Development'))
+            environment = os.getenv('FLASK_ENV', config.get('Environment', 'Development'))
             conn_cfg = config['ConnectionStrings'][environment]
 
             print(f"✅ Entorno actual: {environment}")
