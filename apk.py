@@ -1,59 +1,115 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+import mysql.connector
+from mysql.connector import Error
+import json
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tools.db'
-db = SQLAlchemy(app)
 
-# Modelo para las herramientas
-class Tool(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-    correo = db.Column(db.String(120), nullable=False)
-    usuario = db.Column(db.String(80), nullable=False)
-    contraseña = db.Column(db.String(120), nullable=False)
+def load_config():
+    try:
+        with open('appsettings.json', 'r') as config_file:
+            config = json.load(config_file)
+            environment = config.get('Environment', 'Development')
+            connection_config = config['ConnectionStrings'][environment]
+            
+            return {
+                'host': connection_config['Server'],
+                'user': connection_config['User'],
+                'password': connection_config['Password'],
+                'database': connection_config['Database'],
+                'ssl_disabled': not connection_config['Encrypt']
+            }
+    except Exception as e:
+        print(f"Error al cargar la configuración: {e}")
+        return None
 
-# Rutas
+def get_db_connection():
+    try:
+        config = load_config()
+        if not config:
+            raise Exception("No se pudo cargar la configuración")
+            
+        connection = mysql.connector.connect(**config)
+        return connection
+    except Error as e:
+        print(f"Error al conectar a MySQL: {e}")
+        return None
+
 @app.route('/')
 def index():
-    tools = Tool.query.all()
-    return render_template('index.html', tools=tools)
+    connection = get_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.callproc('listar_usuario')
+            usuarios = []
+            for result in cursor.stored_results():
+                usuarios = result.fetchall()
+            cursor.close()
+            connection.close()
+            return render_template('index.html', tools=usuarios)
+        except Error as e:
+            print(f"Error: {e}")
+            return "Error al obtener usuarios"
+    return "Error de conexión a la base de datos"
 
 @app.route('/agregar', methods=['POST'])
 def agregar_tool():
     if request.method == 'POST':
-        nuevo_tool = Tool(
-            nombre=request.form['nombre'],
-            correo=request.form['correo'],
-            usuario=request.form['usuario'],
-            contraseña=request.form['contraseña']
-        )
-        db.session.add(nuevo_tool)
-        db.session.commit()
-        return redirect(url_for('index'))
+        connection = get_db_connection()
+        if connection:
+            try:
+                cursor = connection.cursor()
+                args = (request.form['nombre'],
+                       request.form['correo'],
+                       request.form['usuario'],
+                       request.form['contraseña'])
+                cursor.callproc('agregar_usuario', args)
+                connection.commit()
+                cursor.close()
+                connection.close()
+                return redirect(url_for('index'))
+            except Error as e:
+                print(f"Error: {e}")
+                return "Error al agregar usuario"
+    return redirect(url_for('index'))
 
 @app.route('/eliminar/<int:id>')
 def eliminar_tool(id):
-    tool = Tool.query.get_or_404(id)
-    db.session.delete(tool)
-    db.session.commit()
+    connection = get_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.callproc('eliminar_usuario', [id])
+            connection.commit()
+            cursor.close()
+            connection.close()
+        except Error as e:
+            print(f"Error: {e}")
     return redirect(url_for('index'))
 
 @app.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar_tool(id):
-    tool = Tool.query.get_or_404(id)
     if request.method == 'POST':
-        tool.nombre = request.form['nombre']
-        tool.correo = request.form['correo']
-        tool.usuario = request.form['usuario']
-        tool.contraseña = request.form['contraseña']
-        db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('editar.html', tool=tool)
+        connection = get_db_connection()
+        if connection:
+            try:
+                cursor = connection.cursor()
+                args = (id,
+                       request.form['nombre'],
+                       request.form['correo'],
+                       request.form['usuario'],
+                       request.form['contraseña'])
+                cursor.callproc('editar_usuario', args)
+                connection.commit()
+                cursor.close()
+                connection.close()
+                return redirect(url_for('index'))
+            except Error as e:
+                print(f"Error: {e}")
+                return "Error al editar usuario"
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
