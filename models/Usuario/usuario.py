@@ -1,10 +1,9 @@
-class usuario :
+class Usuario_toll:
     def __init__(self, nombre, correo, usuario, contrasena):
-        self.nombre = nombre
-        self.correo = correo
-        self.usuario = usuario
-        self.contrasena = contrasena
+        self.nombre = nombre.strip()
+        self.correo = correo.strip()
+        self.usuario = usuario.strip()
+        self.contrasena = contrasena.strip()
 
     def __str__(self):
-        return f"Nombre: {self.nombre}, Correo: {self.correo}, Usuario: {self.usuario}, Contraseña: {self.contrasena}"
-        
+        return f"Usuario({self.nombre}, {self.correo}, {self.usuario})"

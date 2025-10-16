@@ -43,7 +43,7 @@
             <table class="table table-striped table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th>Nombre Tool</th>
+                        <th>Nombre</th>
                         <th>Correo</th>
                         <th>Usuario</th>
                         <th>Contraseña</th>
@@ -58,10 +58,10 @@
                         <td>{{ tool.usuario }}</td>
                         <td>********</td>
                         <td>
-                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal{{ tool.id }}">
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal{{ tool.idUsua }}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <a href="{{ url_for('tool.eliminar_tool', id=tool.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro?')">
+                            <a href="{{ url_for('tool.eliminar_tool', id=tool.idUsua) }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este registro?')">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
@@ -77,71 +77,74 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Agregar Nueva Tool</h5>
+                    <h5 class="modal-title">Agregar Nueva Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ url_for('tool.agregar_tool') }}" method="POST">
-                    <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Nombre Tool</label>
-                            <input type="text" class="form-control" name="nombre" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Correo</label>
                             <input type="email" class="form-control" name="correo" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Usuario</label>
                             <input type="text" class="form-control" name="usuario" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" name="contraseña" required>
-                        </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" required>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    <div class="mb-3">
+                        <label class="form-label">Correo</label>
+                        <input type="email" class="form-control" name="correo" required>
                     </div>
-                </form>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <input type="text" class="form-control" name="usuario" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" name="contraseña" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Modales de Edición -->
-    {% for tool in tools %}
-    <div class="modal fade" id="editarModal{{ tool.id }}" tabindex="-1">
+    {% for usuario in tools %}
+    <div class="modal fade" id="editarModal{{ usuario.idUsua }}" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <form action="{{ url_for('tool.editar_tool', id=usuario.idUsua) }}" method="POST" class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Editar Tool</h5>
+                    <h5 class="modal-title">Editar Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ url_for('editar_tool', id=tool.id) }}" method="POST">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Nombre Tool</label>
-                            <input type="text" class="form-control" name="nombre" value="{{ tool.nombre }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Correo</label>
-                            <input type="email" class="form-control" name="correo" value="{{ tool.correo }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Usuario</label>
-                            <input type="text" class="form-control" name="usuario" value="{{ tool.usuario }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" name="contraseña" value="{{ tool.contraseña }}" required>
-                        </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" value="{{ usuario.nombre }}" required>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    <div class="mb-3">
+                        <label class="form-label">Correo</label>
+                        <input type="email" class="form-control" name="correo" value="{{ usuario.correo }}" required>
                     </div>
-                </form>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <input type="text" class="form-control" name="usuario" value="{{ usuario.usuario }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" name="contraseña" value="{{ usuario.contraseña }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </form>
         </div>
     </div>
     {% endfor %}

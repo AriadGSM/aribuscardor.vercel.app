@@ -26,6 +26,7 @@ def get_db_connection():
         cfg = load_config()
         if not cfg:
             raise Exception("Configuración inválida o no encontrada")
+        print(f"✅ Configuración cargada: {cfg}")
         connection = mysql.connector.connect(**cfg)
         return connection
     except Error as e:

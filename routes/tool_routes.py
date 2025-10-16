@@ -1,22 +1,124 @@
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from database import get_db_connection
+from controllers.controllerUsuario import ControllerUsuario
+from models.Usuario.usuario import Usuario_toll
 
 tool_bp = Blueprint('tool', __name__)
+controller = ControllerUsuario()
 
+
+# 🧾 LISTAR USUARIOS
 @tool_bp.route('/')
 def index():
-    return render_template('view/index.html', tools=[])
+    connection = None
+    cursor = None
+    tools = []
 
+    try:
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor(dictionary=True)
+            cursor.callproc('listar_usuario')
+            for result in cursor.stored_results():
+                tools = result.fetchall()
+    except Exception as e:
+        flash(f"❌ Error al listar usuarios: {e}", "danger")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    return render_template('view/index.html', tools=tools)
+
+
+# ➕ AGREGAR USUARIO
 @tool_bp.route('/agregar_tool', methods=['POST'])
 def agregar_tool():
-    # Implementar la lógica para agregar una tool
-    return jsonify({'mensaje': 'Tool agregada correctamente'})
+    connection = None
+    cursor = None
 
+    usuario = Usuario_toll(
+        request.form.get('nombre', ''),
+        request.form.get('correo', ''),
+        request.form.get('usuario', ''),
+        request.form.get('contraseña', '')
+    )
+
+    try:
+        controller.validar_datos(usuario.nombre, usuario.correo, usuario.usuario, usuario.contrasena)
+        contraseña_hash = controller.hash_password(usuario.contrasena)
+
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor()
+            cursor.callproc('agregar_usuario', (usuario.nombre, usuario.correo, usuario.usuario, contraseña_hash))
+            connection.commit()
+            flash("✅ Usuario agregado correctamente", "success")
+    except Exception as e:
+        flash(f"❌ Error al agregar usuario: {e}", "danger")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    return redirect(url_for('tool.index'))
+
+
+# ✏️ EDITAR USUARIO
 @tool_bp.route('/editar_tool/<int:id>', methods=['POST'])
 def editar_tool(id):
-    # Implementar la lógica para editar una tool
-    return jsonify({'mensaje': f'Tool {id} editada correctamente'})
+    connection = None
+    cursor = None
 
-@tool_bp.route('/eliminar_tool/<int:id>')
+    usuario = Usuario_toll(
+        request.form.get('nombre', ''),
+        request.form.get('correo', ''),
+        request.form.get('usuario', ''),
+        request.form.get('contraseña', '')
+    )
+
+    try:
+        controller.validar_datos(usuario.nombre, usuario.correo, usuario.usuario, usuario.contrasena)
+        contraseña_hash = controller.hash_password(usuario.contrasena)
+
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor()
+            cursor.callproc('editar_usuario', (id, usuario.nombre, usuario.correo, usuario.usuario, contraseña_hash))
+            connection.commit()
+            flash("✅ Usuario editado correctamente", "success")
+    except Exception as e:
+        flash(f"❌ Error al editar usuario: {e}", "danger")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    return redirect(url_for('tool.index'))
+
+
+# 🗑️ ELIMINAR USUARIO
+@tool_bp.route('/eliminar_tool/<int:id>', methods=['GET'])
 def eliminar_tool(id):
-    # Implementar la lógica para eliminar una tool
-    return jsonify({'mensaje': f'Tool {id} eliminada correctamente'})
+    connection = None
+    cursor = None
+
+    try:
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor()
+            cursor.callproc('eliminar_usuario', (id,))
+            connection.commit()
+            flash("🗑️ Usuario eliminado correctamente", "success")
+    except Exception as e:
+        flash(f"❌ Error al eliminar usuario: {e}", "danger")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    return redirect(url_for('tool.index'))

@@ -1,8 +1,31 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, render_template
 from database import get_db_connection
 from mysql.connector import Error
 
 user_bp = Blueprint('user', __name__)
+
+@user_bp.route('/')
+def index():
+    print("⌛ Intentando conectar a la base de datos...")
+    connection = get_db_connection()
+    if connection:
+        try:
+            print("✅ Conexión exitosa a la base de datos")
+            cursor = connection.cursor(dictionary=True)
+            print("⌛ Ejecutando procedimiento listar_usuario...")
+            cursor.callproc('listar_usuario')
+            usuarios = []
+            for result in cursor.stored_results():
+                usuarios = result.fetchall()
+            print(f"📋 Usuarios encontrados: {usuarios}")
+            cursor.close()
+            connection.close()
+            return render_template('view/index.html', tools=usuarios)
+        except Error as e:
+            print(f"❌ Error al ejecutar procedimiento: {e}")
+            return render_template('view/index.html', tools=[])
+    print("❌ No se pudo conectar a la base de datos")
+    return render_template('view/index.html', tools=[])
 
 @user_bp.route('/api/usuarios', methods=['GET'])
 def listar_usuarios():
@@ -55,3 +78,4 @@ def eliminar_usuario(id):
             print(f"❌ Error: {e}")
             return jsonify({'error': 'Error al eliminar usuario'}), 500
     return jsonify({'error': 'Error de conexión a la base de datos'}), 500
+
