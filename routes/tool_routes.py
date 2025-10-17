@@ -18,7 +18,7 @@ def index():
         connection = get_db_connection()
         if connection:
             cursor = connection.cursor(dictionary=True)
-            cursor.callproc('listar_usuario')
+            cursor.callproc('sp_listar_usuario')
             for result in cursor.stored_results():
                 tools = result.fetchall()
     except Exception as e:
@@ -52,7 +52,7 @@ def agregar_tool():
         connection = get_db_connection()
         if connection:
             cursor = connection.cursor()
-            cursor.callproc('agregar_usuario', (usuario.nombre, usuario.correo, usuario.usuario, contraseña_hash))
+            cursor.callproc('sp_agregar_usuario', (usuario.nombre, usuario.correo, usuario.usuario, contraseña_hash))
             connection.commit()
             flash("✅ Usuario agregado correctamente", "success")
     except Exception as e:
@@ -86,7 +86,7 @@ def editar_tool(id):
         connection = get_db_connection()
         if connection:
             cursor = connection.cursor()
-            cursor.callproc('editar_usuario', (id, usuario.nombre, usuario.correo, usuario.usuario, contraseña_hash))
+            cursor.callproc('sp_editar_usuario', (id, usuario.nombre, usuario.correo, usuario.usuario, contraseña_hash))
             connection.commit()
             flash("✅ Usuario editado correctamente", "success")
     except Exception as e:
@@ -110,7 +110,7 @@ def eliminar_tool(id):
         connection = get_db_connection()
         if connection:
             cursor = connection.cursor()
-            cursor.callproc('eliminar_usuario', (id,))
+            cursor.callproc('sp_eliminar_usuario', (id,))
             connection.commit()
             flash("🗑️ Usuario eliminado correctamente", "success")
     except Exception as e:
