@@ -5,121 +5,83 @@ set "PYTHONUTF8=1"
 
 title 🚀 BUILD AUTOMATICO DEL PROYECTO ARIAD GSM
 
-:: 🎨 Colores
-set "GREEN=[32m"
-set "YELLOW=[33m"
-set "CYAN=[36m"
-set "RED=[31m"
-set "RESET=[0m"
+:: Colores ANSI
+for /f "delims=" %%A in ('echo prompt $E^| cmd') do set "ESC=%%A"
+set "GREEN=%ESC%[32m"
+set "YELLOW=%ESC%[33m"
+set "CYAN=%ESC%[36m"
+set "RED=%ESC%[31m"
+set "RESET=%ESC%[0m"
 
 echo %CYAN%===========================================
 echo 🚀 INICIANDO BUILD COMPLETO - ARIAD GSM
 echo ===========================================%RESET%
 
-:: Ir a la carpeta del script (evita rutas con ❤)
 cd /d "%~dp0"
 
-:: 1️⃣ Activar entorno virtual
+:: 1) venv
 echo %YELLOW%🐍 Activando entorno virtual...%RESET%
 if not exist "venv\Scripts\activate.bat" (
-    echo %RED%⚠️ No se encontró entorno virtual. Creando...%RESET%
-    python -m venv "venv"
+  echo %YELLOW%Creando venv...%RESET%
+  py -m venv "venv" || python -m venv "venv"
 )
 call "venv\Scripts\activate.bat" || (echo %RED%❌ No se pudo activar el entorno virtual.%RESET% & exit /b 1)
 
-:: 2️⃣ Instalar dependencias Python
+:: 2) Python deps
 echo %YELLOW%📦 Instalando dependencias Python...%RESET%
+python -m pip install -U pip >nul
 if exist "requirements.txt" (
-    pip install -r "requirements.txt" >nul
+  python -m pip install -r "requirements.txt"
 ) else (
-    echo Flask > "requirements.txt"
-    echo mysql-connector-python >> "requirements.txt"
-    echo Werkzeug >> "requirements.txt"
-    pip install -r "requirements.txt" >nul
+  >"requirements.txt" (
+    echo Flask
+    echo mysql-connector-python
+    echo Werkzeug
+  )
+  python -m pip install -r "requirements.txt"
 )
 call :progress
 
-:: 3️⃣ Instalar dependencias de Node y compilar TypeScript
+:: 3) Node + TypeScript
 if exist "package.json" (
-    echo %YELLOW%🧩 Instalando dependencias Node...%RESET%
-    npm install >nul
-)
-echo %YELLOW%🔧 Compilando TypeScript...%RESET%
-where tsc >nul 2>nul
-if %errorlevel% neq 0 (
-    echo %RED%❌ TypeScript no está instalado globalmente. Ejecuta: npm install -g typescript%RESET%
-) else (
-    tsc >nul
+  echo %YELLOW%🧩 Instalando dependencias Node...%RESET%
+  call npm ci || call npm install
+  echo %YELLOW%🔧 Compilando TypeScript...%RESET%
+  call npx tsc || (call npm i -D typescript && call npx tsc)
 )
 call :progress
 
-:: 4️⃣ Ejecutar pruebas
+:: 4) Pruebas (si hay pytest)
 echo %YELLOW%🧪 Ejecutando pruebas (si existen)...%RESET%
-pytest >nul 2>nul
+where pytest >nul 2>nul && python -m pytest
 call :progress
 
-:: 5️⃣ Crear paquete ZIP seguro
+:: 5) ZIP
 echo %YELLOW%📦 Creando paquete ZIP del proyecto...%RESET%
-
-if exist "app_build.zip" del "app_build.zip"
-
-powershell -NoProfile -Command ^
-"try {
-    Compress-Archive -Path (Get-ChildItem -Path . -Exclude 'venv','__pycache__','node_modules','app_build.zip') -DestinationPath 'app_build.zip' -Force;
-    Write-Host '✅ Archivo app_build.zip creado correctamente.' -ForegroundColor Green;
-} catch {
-    Write-Host '❌ Error al crear el ZIP.' -ForegroundColor Red;
-    exit 1
-}"
-
+if exist "app_build.zip" del /f /q "app_build.zip"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Compress-Archive -Path (Get-ChildItem -Path . -Force -Exclude 'venv','__pycache__','node_modules','app_build.zip') -DestinationPath 'app_build.zip' -Force"
 if not exist "app_build.zip" (
-    echo %RED%❌ No se generó app_build.zip. Revisa los errores anteriores.%RESET%
-    exit /b 1
+  echo %RED%❌ No se generó app_build.zip. Revisa los errores anteriores.%RESET%
+  exit /b 1
+) else (
+  echo %GREEN%✅ Archivo app_build.zip creado correctamente.%RESET%
 )
 call :progress
 
-:: 6️⃣ Subir automáticamente al servidor cPanel (FTP)
-echo %YELLOW%🌍 Subiendo automáticamente al servidor cPanel...%RESET%
-
-:: 🔧 CONFIGURACIÓN FTP — CAMBIA ESTOS DATOS 🔧
-set "FTP_SERVER=ftp.tudominio.com"
-set "FTP_USER=tu_usuario_ftp"
-set "FTP_PASS=tu_contraseña_ftp"
-set "REMOTE_DIR=public_html"
-
-powershell -NoProfile -Command ^
-"try {
-    Write-Host 'Conectando a %FTP_SERVER%...' -ForegroundColor Cyan;
-    $ftp = 'ftp://%FTP_SERVER%/%REMOTE_DIR%/app_build.zip';
-    $webclient = New-Object System.Net.WebClient;
-    $webclient.Credentials = New-Object System.Net.NetworkCredential('%FTP_USER%', '%FTP_PASS%');
-    $webclient.UploadFile($ftp, 'STOR', 'app_build.zip');
-    Write-Host '✅ Archivo app_build.zip subido correctamente al servidor.' -ForegroundColor Green;
-} catch {
-    Write-Host '❌ Error al subir el archivo al servidor FTP.' -ForegroundColor Red;
-}"
-
-call :progress
-
-:: 7️⃣ Finalización
 echo %GREEN%===========================================
 echo ✅ BUILD COMPLETO EXITOSO
 echo 📁 Archivo generado: app_build.zip
-echo 🌐 Subido a tu servidor: /%REMOTE_DIR%/
 echo 🕒 Fecha: %date% %time%
 echo ===========================================%RESET%
+exit /b 0
 
-pause
-exit /b
-
-:: Función de barra de progreso
 :progress
 setlocal
 set "BAR="
 for /L %%G in (1,1,20) do (
-    set "BAR=#%BAR%"
-    <nul set /p "=" %CYAN%[%BAR%>%RESET%
-    timeout /nobreak /t 1 >nul
+  set "BAR=#%BAR%"
+  <nul set /p "=%CYAN%[%BAR%^>%RESET%"
+  timeout /nobreak /t 1 >nul
 )
 echo.
 endlocal
