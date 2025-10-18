@@ -59,7 +59,7 @@ call :progress
 :: 5) ZIP
 echo %YELLOW%📦 Creando paquete ZIP del proyecto...%RESET%
 if exist "app_build.zip" del /f /q "app_build.zip"
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Compress-Archive -Path (Get-ChildItem -Path . -Force -Exclude 'venv','__pycache__','node_modules','app_build.zip') -DestinationPath 'app_build.zip' -Force"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Compress-Archive -Path (Get-ChildItem -Path . -Force -Exclude 'venv','__pycache__','node_modules','app_build.zip','build.log') -DestinationPath 'app_build.zip' -Force"
 if not exist "app_build.zip" (
   echo %RED%❌ No se generó app_build.zip. Revisa los errores anteriores.%RESET%
   exit /b 1
