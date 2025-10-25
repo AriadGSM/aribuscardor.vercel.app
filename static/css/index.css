@@ -1,0 +1,43 @@
+:root {
+    --color-1: #00e5ff;
+    --color-2: #ffd700;
+    --color-3: #ff6b35;
+    --color-4: #ff4d79;
+    --color-5: #8b008b;
+}
+
+body {
+    background: linear-gradient(45deg, var(--color-1), var(--color-2), var(--color-3), var(--color-4), var(--color-5));
+    min-height: 100vh;
+    color: white;
+}
+
+.hero-section {
+    padding: 100px 0;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin-top: 50px;
+}
+
+.gallery {
+    padding: 50px 0;
+}
+
+.art-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s;
+}
+
+.art-card:hover {
+    transform: translateY(-10px);
+}
+
+.art-card img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}

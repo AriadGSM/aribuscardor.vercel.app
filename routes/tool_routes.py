@@ -3,9 +3,20 @@ from database import get_db_connection
 from controllers.controllerUsuario import ControllerUsuario
 from models.Usuario.usuario import Usuario_toll
 
-tool_bp = Blueprint('tool', __name__)
+tool_bp = Blueprint(
+    'tool',
+    __name__,
+    static_folder='../static',  
+    static_url_path='/static'   
+)
+
+
 controller = ControllerUsuario()
 
+# 📱 PÁGINA DE INICIO
+@tool_bp.route('/index')
+def home():
+    return render_template('view/index.html')
 
 # 🧾 LISTAR USUARIOS
 @tool_bp.route('/')
@@ -29,7 +40,7 @@ def index():
         if connection:
             connection.close()
 
-    return render_template('view/index.html', tools=tools)
+    return render_template('view/login.html', tools=tools)
 
 
 # ➕ AGREGAR USUARIO
@@ -63,7 +74,7 @@ def agregar_tool():
         if connection:
             connection.close()
 
-    return redirect(url_for('tool.index'))
+    return redirect(url_for('tool.login'))
 
 
 # ✏️ EDITAR USUARIO
@@ -97,7 +108,7 @@ def editar_tool(id):
         if connection:
             connection.close()
 
-    return redirect(url_for('tool.index'))
+    return redirect(url_for('tool.login'))
 
 
 # 🗑️ ELIMINAR USUARIO
@@ -121,4 +132,4 @@ def eliminar_tool(id):
         if connection:
             connection.close()
 
-    return redirect(url_for('tool.index'))
+    return redirect(url_for('tool.login'))
