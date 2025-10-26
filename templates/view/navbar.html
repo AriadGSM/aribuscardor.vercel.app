@@ -1,21 +1,46 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('tool.home') }}">Ari - Cuentas</a>
+        <a class="navbar-brand" href="{{ url_for('tool.index') }}">Ari - Cuentas</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ url_for('tool.home') }}">Inicio</a>
+                    <a class="nav-link active" href="{{ url_for('tool.index') }}">Inicio</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('tool.index') }}">Login</a>
+                    <a class="nav-link" href="{{ url_for('tool.login') }}">Login</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#contacto">Contacto</a>
                 </li>
             </ul>
+            <div class="d-flex align-items-center">
+                <div class="cart-icon position-relative" id="cartIcon">
+                    <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartCount">0</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
+
+<!-- Offcanvas Carrito -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Carrito de Compras</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="cartItems"></div>
+        <div class="cart-total mt-3 pt-3 border-top">
+            <strong>Total: </strong><span id="cartTotal">S/. 0.00</span>
+        </div>
+        <div class="d-grid gap-2 mt-3">
+            <button class="btn btn-primary" type="button" id="checkoutButton">Proceder al Pago</button>
+        </div>
+    </div>
+</div>
