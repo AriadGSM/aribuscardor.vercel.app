@@ -3,6 +3,9 @@ from database import get_db_connection
 from controllers.controllerUsuario import ControllerUsuario
 from models.Usuario.usuario import Usuario_toll
 from flask import session  # Agregar esta importación al inicio del archivo
+from functools import wraps
+from werkzeug.utils import secure_filename
+import os
 
 tool_bp = Blueprint(
     'tool',
@@ -189,3 +192,89 @@ def ver_carrito():
             cursor.close()
         if connection:
             connection.close()
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('is_admin'):
+            flash('❌ Acceso denegado. Se requieren privilegios de administrador.', 'danger')
+            return redirect(url_for('tool.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# 👤 Ruta para login de administrador
+@tool_bp.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        usuario = request.form.get('usuario')
+        contrasena = request.form.get('contrasena')
+        
+        try:
+            connection = get_db_connection()
+            if connection:
+                cursor = connection.cursor(dictionary=True)
+                # Verificar credenciales del administrador
+                cursor.execute("SELECT * FROM usuario WHERE usuario = %s AND is_admin = 1", (usuario,))
+                admin = cursor.fetchone()
+                
+                if admin and controller.verificar_password(admin['contrasena'], contrasena):
+                    session['usuario_id'] = admin['idUsua']
+                    session['is_admin'] = True
+                    flash('✅ Inicio de sesión exitoso como administrador', 'success')
+                    return redirect(url_for('tool.admin_dashboard'))
+                else:
+                    flash('❌ Credenciales inválidas o usuario no es administrador', 'danger')
+        except Exception as e:
+            flash(f'❌ Error en el inicio de sesión: {str(e)}', 'danger')
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+                
+    return render_template('view/admin_login.html')
+
+# 📊 Panel de administrador
+@tool_bp.route('/admin')
+@admin_required
+def admin_dashboard():
+    return render_template('view/admin.html')
+
+# 📦 Agregar producto
+@tool_bp.route('/admin/agregar_producto', methods=['POST'])
+@admin_required
+def agregar_producto():
+    try:
+        nombre = request.form.get('nombre')
+        descripcion = request.form.get('descripcion')
+        precio = request.form.get('precio')
+        imagen = request.files.get('imagen')
+        
+        if imagen:
+            # Guardar la imagen en la carpeta static/img
+            filename = secure_filename(imagen.filename)
+            imagen_path = os.path.join('static/src/img', filename)
+            imagen.save(os.path.join(tool_bp.root_path, '..', imagen_path))
+        else:
+            imagen_path = None
+            
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor()
+            cursor.execute("""
+                INSERT INTO productos (nombre, descripcion, precio, imagen)
+                VALUES (%s, %s, %s, %s)
+            """, (nombre, descripcion, precio, imagen_path))
+            connection.commit()
+            flash('✅ Producto agregado correctamente', 'success')
+            
+    except Exception as e:
+        flash(f'❌ Error al agregar producto: {str(e)}', 'danger')
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+            
+    return redirect(url_for('tool.admin_dashboard'))
