@@ -11,6 +11,7 @@
 </head>
 <body>
     {% include 'view/navbar.html' %}
+    {% include 'view/cart.html' %}
     
     <div class="hero-section">
         <div class="container">
@@ -40,14 +41,26 @@
                     <div class="art-card">
                         <img src="{{ url_for('static', filename='src/img/DELFIN ROSA.png') }}" alt="Arte 2">
                         <h3>DELFÍN ROSA</h3>
-                        <p>La magia de la naturaleza en cada trazo</p>
+                        <p class="art-description">La magia de la naturaleza en cada trazo, capturada en esta representación única del delfín rosado amazónico.</p>
+                        <div class="product-actions">
+                            <input type="number" class="form-control cantidad" value="1" min="1">
+                            <button class="btn btn-primary agregar-carrito" data-id="2" data-precio="120.00">
+                                <i class="fas fa-cart-plus"></i> Agregar al carrito
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="art-card">
                         <img src="{{ url_for('static', filename='src/img/SHAKRUNA CHIBI CON LETRAS.png') }}" alt="Arte 3">
                         <h3>SHAKRUNA CHIBI</h3>
-                        <p>Arte que cuenta historias ancestrales</p>
+                        <p class="art-description">Arte que cuenta historias ancestrales, fusionando la tradición con un estilo moderno y cautivador.</p>
+                        <div class="product-actions">
+                            <input type="number" class="form-control cantidad" value="1" min="1">
+                            <button class="btn btn-primary agregar-carrito" data-id="3" data-precio="150.00">
+                                <i class="fas fa-cart-plus"></i> Agregar al carrito
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

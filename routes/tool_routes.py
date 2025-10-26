@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from database import get_db_connection
 from controllers.controllerUsuario import ControllerUsuario
 from models.Usuario.usuario import Usuario_toll
+from flask import session  # Agregar esta importación al inicio del archivo
 
 tool_bp = Blueprint(
     'tool',
