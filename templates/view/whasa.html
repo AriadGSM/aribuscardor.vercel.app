@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/whasa.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="whatsapp-float">
+        <div class="chat-bot" id="chatBot">
+            <div class="chat-header">
+                <span>Asistente de Arte</span>
+                <button class="close-chat" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">¡Hola! ¿En qué puedo ayudarte?</div>
+            </div>
+            <div class="chat-options">
+                <button onclick="selectOption('precios')">¿Cuáles son los precios?</button>
+                <button onclick="selectOption('materiales')">¿Qué materiales usas?</button>
+                <button onclick="selectOption('envios')">Información de envíos</button>
+                <button onclick="selectOption('contacto')">Contacto directo</button>
+            </div>
+        </div>
+        <button class="whatsapp-button" onclick="toggleChat()">
+            <i class="fas fa-comments"></i>
+            <span class="whatsapp-text">¿Preguntas sobre mi arte?</span>
+        </button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/chat.whasa.js') }}"></script>
+</body>
+</html>
