@@ -25,36 +25,105 @@
     width: 80px;
 }
 
+.btn-primary {
+    background-color: var(--color-4) !important;
+    border-color: var(--color-4) !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-5) !important;
+    border-color: var(--color-5) !important;
+    transform: scale(1.05);
+}
+
 .cart-preview {
     position: fixed;
     right: 20px;
     top: 80px;
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     width: 300px;
+    border: 2px solid var(--color-4);
 }
 
 .cart-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-4);
+}
+
+.cart-item h6 {
+    color: #000000;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.cart-item small {
+    color: #333333;
+    font-weight: 500;
+}
+
+.cart-item span {
+    color: #000000;
+    font-weight: 600;
 }
 
 .cart-total {
     margin-top: 15px;
-    padding-top: 10px;
-    border-top: 2px solid #ddd;
+    padding-top: 12px;
+    border-top: 2px solid var(--color-4);
     text-align: right;
+    font-weight: bold;
+    color: #000000;
+}
+
+.cart-total strong {
+    color: #000000;
+}
+
+.cart-total span {
+    color: #000000;
+    font-weight: 700;
+}
+
+.offcanvas {
+    background-color: #ffffff !important;
+}
+
+.offcanvas-title {
+    color: #000000;
+    font-weight: bold;
+    font-size: 1.25rem;
 }
 
 .cart-icon .badge {
+    background-color: var(--color-4) !important;
     transform: translate(-50%, -50%) !important;
 }
 
 .toast {
     z-index: 1100;
+    background: #ffffff !important;
+    border: 2px solid var(--color-5) !important;
+}
+
+.toast .toast-header {
+    background-color: var(--color-5) !important;
+    color: white !important;
+}
+
+.toast .toast-body {
+    color: #000000 !important;
+    font-weight: 500;
+    padding: 12px;
+}
+
+.toast .btn-close {
+    filter: brightness(0) invert(1);
 }

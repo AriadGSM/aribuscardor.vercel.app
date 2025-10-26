@@ -8,25 +8,23 @@
 </head>
 <body>
     <div class="whatsapp-float">
-        <div class="chat-bot" id="chatBot">
-            <div class="chat-header">
-                <span>Asistente de Arte</span>
-                <button class="close-chat" onclick="toggleChat()">×</button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot">¡Hola! ¿En qué puedo ayudarte?</div>
-            </div>
-            <div class="chat-options">
-                <button onclick="selectOption('precios')">¿Cuáles son los precios?</button>
-                <button onclick="selectOption('materiales')">¿Qué materiales usas?</button>
-                <button onclick="selectOption('envios')">Información de envíos</button>
-                <button onclick="selectOption('contacto')">Contacto directo</button>
-            </div>
-        </div>
         <button class="whatsapp-button" onclick="toggleChat()">
-            <i class="fas fa-comments"></i>
+            <i class="fab fa-whatsapp"></i>
             <span class="whatsapp-text">¿Preguntas sobre mi arte?</span>
         </button>
+        <div class="chat-bot" id="chatBot">
+            <div class="chat-header">
+                <span>Chat de Consultas</span>
+                <button class="close-chat" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-options">
+                <button onclick="selectOption('bienvenida')">Iniciar Consulta</button>
+                <button onclick="selectOption('detalles')">Detalles del Cuadro</button>
+                <button onclick="selectOption('estilo')">Estilo y Cotización</button>
+                <button onclick="selectOption('contacto')">Contacto Directo</button>
+            </div>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/chat.whasa.js') }}"></script>
